@@ -74,6 +74,16 @@ public class Calculator {
                 if (isNumericDouble(resultText)) {
                     result.setText(resultText + "°");
                 }
+            } else if (e.getActionCommand().equals("cos")) {
+                String number = resultText.substring(0, resultText.length() - 1);
+                if (isNumericDouble(number) && !endsWithDegreeSymbol(resultText)) {
+                    result.setText(String.valueOf(MathFunctions.cos(Double.parseDouble(resultText))));
+                } else if (isNumericDouble(number) && endsWithDegreeSymbol(resultText)) {
+                    double angleInRadians = Math.toRadians(Double.parseDouble(number));
+                    result.setText(String.valueOf(Math.round(Math.cos(angleInRadians) * 1e15) / 1e15));
+                } else {
+                    result.setText(null);
+                }
             } else if (e.getActionCommand().equals("sin")) {
                 String number = resultText.substring(0, resultText.length() - 1);
                 if (isNumericDouble(number) && !endsWithDegreeSymbol(resultText)) {
