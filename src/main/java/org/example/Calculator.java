@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Calculator {
-    private static final List<String> operations = Arrays.asList("+", "-", "/", "*", "x\u00B2", "\u221A", "x!", "|x|", "cos", "sin", "tan", "cot", "MS", "MR", "MC", "M+", "M-", "MRC", "DEL", "C", "=");
+    private static final List<String> operations = Arrays.asList("+", "-", "/", "*", "x\u00B2", "\u221A", "x!", "|x|", "°", "cos", "sin", "tan", "cot", "MS", "MR", "MC", "M+", "M-", "MRC", "DEL", "C", "=");
     private static final List<String> numbers = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".");
 
     public static void main(String[] args) {
@@ -53,7 +53,9 @@ public class Calculator {
             } else if (e.getActionCommand().equals("C")) {
                 result.setText(null);
             } else if (e.getActionCommand().equals("DEL")) {
-                result.setText(resultText.substring(0, resultText.length() - 1));
+                if (!resultText.isEmpty()) {
+                    result.setText(resultText.substring(0, resultText.length() - 1));
+                }
             } else if (e.getActionCommand().equals("=")) {
                 if (isValidExpression(resultText)) {
                     double doubleResult = calculate(resultText);
@@ -64,22 +66,43 @@ public class Calculator {
                     } else {
                         result.setText(String.valueOf(doubleResult));
                     }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
+                    result.setText(null);
                 }
-            } else if (e.getActionCommand().equals("cos")) {
+            } else if (e.getActionCommand().equals("°")) {
                 if (isNumericDouble(resultText)) {
-                    result.setText(String.valueOf(MathFunctions.cos(Double.parseDouble(resultText))));
+                    result.setText(resultText + "°");
                 }
             } else if (e.getActionCommand().equals("sin")) {
-                if (isNumericDouble(resultText)) {
+                String number = resultText.substring(0, resultText.length() - 1);
+                if (isNumericDouble(number) && !endsWithDegreeSymbol(resultText)) {
                     result.setText(String.valueOf(MathFunctions.sin(Double.parseDouble(resultText))));
+                } else if (isNumericDouble(number) && endsWithDegreeSymbol(resultText)) {
+                    double angleInRadians = Math.toRadians(Double.parseDouble(number));
+                    result.setText(String.valueOf(Math.round(Math.sin(angleInRadians) * 1e15) / 1e15));
+                } else {
+                    result.setText(null);
                 }
             } else if (e.getActionCommand().equals("tan")) {
-                if (isNumericDouble(resultText)) {
+                String number = resultText.substring(0, resultText.length() - 1);
+                if (isNumericDouble(number) && !endsWithDegreeSymbol(resultText)) {
                     result.setText(String.valueOf(MathFunctions.tan(Double.parseDouble(resultText))));
+                } else if (isNumericDouble(number) && endsWithDegreeSymbol(resultText)) {
+                    double angleInRadians = Math.toRadians(Double.parseDouble(number));
+                    result.setText(String.valueOf(Math.round(Math.tan(angleInRadians) * 1e15) / 1e15));
+                } else {
+                    result.setText(null);
                 }
             } else if (e.getActionCommand().equals("cot")) {
-                if (isNumericDouble(resultText)) {
-                    result.setText(String.valueOf(MathFunctions.cot(Double.parseDouble(resultText))));
+                String number = resultText.substring(0, resultText.length() - 1);
+                if (isNumericDouble(number) && !endsWithDegreeSymbol(resultText)) {
+                    result.setText(String.valueOf(1.0 / MathFunctions.tan(Double.parseDouble(resultText))));
+                } else if (isNumericDouble(number) && endsWithDegreeSymbol(resultText)) {
+                    double angleInRadians = Math.toRadians(Double.parseDouble(number));
+                    result.setText(String.valueOf(1.0 / (Math.round(Math.tan(angleInRadians) * 1e15) / 1e15)));
+                } else {
+                    result.setText(null);
                 }
             } else if (e.getActionCommand().equals("x\u00B2")) {
                 if (isNumericDouble(resultText)) {
@@ -469,5 +492,9 @@ public class Calculator {
         } else {
             return "";
         }
+    }
+
+    private static boolean endsWithDegreeSymbol(String input) {
+        return input.endsWith("°");
     }
 }
